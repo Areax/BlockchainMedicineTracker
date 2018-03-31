@@ -74,7 +74,7 @@ export class LogInChecker {
 export class Business {
 	businessId: string;
 	name: string;
-	businessType: BusinessType; //changed to string
+	businessType: string; //changed to string
 	PoCName: string;
 	PoCEmail: string;
 	address: Address; //replaced with string for now -rather than Address

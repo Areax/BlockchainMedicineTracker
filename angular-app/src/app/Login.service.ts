@@ -27,12 +27,12 @@ export class LoginService {
         return this.residentService.getAll(this.USERS);
     }
 
-    public getUser(id: any): Observable<Users> {
-      return this.residentService.getSingle(this.USERS, id);
+    public addUser(itemToAdd: any): Observable<Users> {
+      return this.residentService.add(this.USERS, itemToAdd);
     }
 
     public getUser(id: any): Observable<Users> {
-      return this.residentService.getSingle(this.USERS, id);
+      return this.residentService.getSingle(this.USERS, id, "userEmail");
     }
 
     public deleteUser(id: any): Observable<Users> {
@@ -49,7 +49,7 @@ export class LoginService {
     }
 
     public getBusiness(id: any): Observable<Business> {
-      return this.residentService.getSingle(this.BUSINESS, id);
+      return this.residentService.getSingle(this.BUSINESS, id, "businessId");
     }
 
     public addBusiness(itemToAdd: any): Observable<Business> {
@@ -70,7 +70,7 @@ export class LoginService {
     }
 
     public getItem(id: any): Observable<Item> {
-      return this.residentService.getSingle(this.ITEM, id);
+      return this.residentService.getSingle(this.ITEM, id, "currentOwner");
     }
 
     public addItem(itemToAdd: any): Observable<Item> {
@@ -90,9 +90,9 @@ export class LoginService {
         return this.residentService.getAll(this.ITEMTYPE);
     }
 
-    public getItemType(id: any): Observable<ItemType> {
-      return this.residentService.getSingle(this.ITEMTYPE, id);
-    }
+    //public getItemType(id: any): Observable<ItemType> {
+    //  return this.residentService.getSingle(this.ITEMTYPE, id);
+   // }
 
     public addItemType(itemToAdd: any): Observable<ItemType> {
       return this.residentService.add(this.ITEMTYPE, itemToAdd);
@@ -111,9 +111,9 @@ export class LoginService {
         return this.residentService.getAll(this.CONTRACT);
     }
 
-    public getContract(id: any): Observable<Contract> {
-      return this.residentService.getSingle(this.CONTRACT, id);
-    }
+    //public getContract(id: any): Observable<Contract> {
+    //  return this.residentService.getSingle(this.CONTRACT, id);
+    //}
 
     public addContract(itemToAdd: any): Observable<Contract> {
       return this.residentService.add(this.CONTRACT, itemToAdd);
@@ -129,5 +129,9 @@ export class LoginService {
 
     public addEmployee(itemToAdd: any): Observable<Employee> {
       return this.residentService.add(this.EMPLOYEE, itemToAdd);
+    }
+
+    public getEmployee(id: any): Observable<Employee> {
+      return this.residentService.getSingle(this.EMPLOYEE, id, "employeeId");
     }
 }

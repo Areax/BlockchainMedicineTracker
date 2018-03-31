@@ -3,7 +3,7 @@ import { LoginService } from './Login.service';
 import 'rxjs/add/operator/toPromise';
 //import { Contract } from './models';
 import { Router } from "@angular/router";
-import { Users, Business, Item, ItemType, Contract } from './models';
+import { Address, Users, Employee, BusinessType, EmployeeType, Business, Item, ItemType, Contract } from './models';
 	
 @Component({
   moduleId: module.id,
@@ -32,6 +32,8 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 	isManufacturer: boolean;
 	
 	constructor(private serviceLogin:LoginService,private router: Router){
+	  //this.loadInfo(localStorage.getItem('id'));
+	  //console.log("now here");
 	  this.business = localStorage.getItem("name");
 	  this.contracts = new Array();
 	  this.pendingcontracts = new Array();
@@ -43,8 +45,9 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 	  else
 		  this.isManufacturer = false;
 	  
+
 	  this.loadBusinesses();
-	  this.loadContracts(this.business);
+	  this.loadContracts("org.mat.Business#"+localStorage.getItem("businessid"));
 	  this.loadItems(this.business);
 	  
     }
@@ -100,6 +103,71 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 		this.router.navigate(['/']);
 	}
 	
+	loadInfo(_id): Promise<any>  {
+    	let usersList = [];
+		return this.serviceLogin.getEmployee(_id)
+		.toPromise()
+		.then((result) => {
+			this.errorMessage = null;
+			result.forEach(user => {
+				usersList.push(user);
+			});     
+		})
+		.then(() => {	
+			for (let user of usersList) {
+				console.log("wow");
+				console.log(user);
+				localStorage.setItem('employeetype', user.employeeType);
+				this.loadBusinessInfo(user.worksFor.split("#")[1]);
+				break;
+			}
+		}).catch((error) => {
+			if(error == 'Server error'){
+				this.errorMessage = "Could not connect to REST server. Please check your configuration details";
+			}
+			else if (error == '500 - Internal Server Error') {
+			  this.errorMessage = "Input error";
+			}
+			else{
+				this.errorMessage = error;
+			}
+		});
+
+	}
+
+	loadBusinessInfo(_id): Promise<any>  {
+    	let usersList = [];
+		return this.serviceLogin.getBusiness(_id)
+		.toPromise()
+		.then((result) => {
+			this.errorMessage = null;
+			result.forEach(user => {
+				usersList.push(user);
+			});     
+		})
+		.then(() => {	
+			for (let user of usersList) {
+				console.log("wow2");
+				console.log(user);
+				localStorage.setItem('type', user.businessType);
+				localStorage.setItem('businessName', user.name);
+				localStorage.setItem('businessid', user.businessId);
+				break;
+			}
+		}).catch((error) => {
+			if(error == 'Server error'){
+				this.errorMessage = "Could not connect to REST server. Please check your configuration details";
+			}
+			else if (error == '500 - Internal Server Error') {
+			  this.errorMessage = "Input error";
+			}
+			else{
+				this.errorMessage = error;
+			}
+		});
+
+	}
+
 	addNewMedicine(){
 		var nmtamount = (<HTMLInputElement>document.getElementById("nmtamount")).value;
 		var nmpackage = (<HTMLInputElement>document.getElementById("nmpackage")).value;
@@ -167,7 +235,8 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
     
     //retrieve all residents
 		let itemsList = [];
-		return this.serviceLogin.getAllItems()
+		//return this.serviceLogin.getAllItems()
+		return this.serviceLogin.getItem("org.mat.Business#"+this.business)
 		.toPromise()
 		.then((result) => {
 				this.errorMessage = null;
@@ -182,10 +251,10 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 		  for (let item of itemsList) {
 			  //console.log(item);
 			 
-			if(item.Business==name){ //probs gunna have to fix this when actually connecting
+			//if(item.Business==name){ //probs gunna have to fix this when actually connecting
 				this.items.push(item);
 				
-			}
+			//}
 		  }
 		  //console.log(this.items);
 		  this.allItems = itemsList;
@@ -301,6 +370,7 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 		  }
 		  //console.log(this.contracts);
 		  this.allContracts = contractsList;
+		  //console.log(contractsList);
 		}).catch((error) => {
 			if(error == 'Server error'){
 				this.errorMessage = "Could not connect to REST server. Please check your configuration details";

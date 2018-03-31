@@ -161,13 +161,14 @@ export class LoginComponent implements AfterViewInit  {
 		address.city = inputaddresscity; 
 		address.country = inputaddresscountry;
 		address.state = inputaddressstate;
+		address.zip = ""; //TO-DO ADD THIS
 		var addressstr = JSON.stringify(address);
 		//this.addAddress(address);
 
-		var businessType: BusinessType;
-		businessType = new BusinessType();
-		businessType.type = inputtype;
-		var businessTypeStr = JSON.stringify(businessType);
+		//var businessType: BusinessType;
+		//businessType = new BusinessType();
+		//businessType.type = inputtype;
+		//var businessTypeStr = JSON.stringify(businessType);
 
 		var business: Business;
 		business = new Business();
@@ -175,17 +176,17 @@ export class LoginComponent implements AfterViewInit  {
 		business.PoCEmail = inputemail;
 		business.PoCName = inputfirstname+" "+inputlastname;
 		business.name = inputname;
-		business.businessType = businessType;
+		business.businessType = inputtype;
 		business.address = address;
 		business.accountBalance = 0;
-		business.inventory = [""];
-		business.employees = [""];
+		//business.inventory = [""];
+		//business.employees = [""];
 		this.addBusiness(business);
 
-		var employeeType: EmployeeType;
-		employeeType = new EmployeeType();
-		employeeType.type = "Admin";
-		var employeeTypeStr = JSON.stringify(employeeType);
+		//var employeeType: EmployeeType;
+		//employeeType = new EmployeeType();
+		//employeeType.type = "Admin";
+		//var employeeTypeStr = JSON.stringify(employeeType);
 
 		var employee: Employee;
 		employee = new Employee();
@@ -193,7 +194,7 @@ export class LoginComponent implements AfterViewInit  {
 		employee.firstName = inputfirstname;
 		employee.lastName = inputlastname;
 		employee.email = inputemail;
-		employee.employeeType = employeeTypeStr;
+		employee.employeeType = "Admin";
 		//TO-DO ADD PHONE NUMBER OPTIONAL
 		employee.worksFor = "org.mat.Business#"+business.businessId;
 		this.addEmployee(employee);
@@ -294,7 +295,7 @@ export class LoginComponent implements AfterViewInit  {
 	}
 
 	addEmployee(employee): Promise<any>  {
-		return this.serviceLogin.addBusiness(employee)
+		return this.serviceLogin.addEmployee(employee)
 		.toPromise()
 		.then((result) => {
 				this.errorMessage = null;
@@ -316,7 +317,7 @@ export class LoginComponent implements AfterViewInit  {
 	}
 
 	addUser(user): Promise<any>  {
-		return this.serviceLogin.addBusiness(user)
+		return this.serviceLogin.addUser(user)
 		.toPromise()
 		.then((result) => {
 				this.errorMessage = null;
@@ -345,9 +346,11 @@ export class LoginComponent implements AfterViewInit  {
 		.toPromise()
 		.then((result) => {
 				this.errorMessage = null;
-			  result.forEach(user => {
-				usersList.push(user);
-			  });     
+			  //result.forEach(user => {
+			 //	usersList.push(user);
+			 // });
+			 //console.log(result);
+			 usersList.push(result[0]);     
 		})
 		.then(() => {
 			
@@ -358,9 +361,10 @@ export class LoginComponent implements AfterViewInit  {
 				if(user.password==_password){
 					localStorage.setItem('email', user.userEmail);
 					localStorage.setItem('id', user.employeeId);
-					localStorage.setItem('name', user.employeeId.split(".")[0]+" "+user.employeeId.split(".")[1]); //TO-FIX make this less ghetto
+					localStorage.setItem('name', user.employeeId.split(".")[1]+" "+user.employeeId.split(".")[2]); //TO-FIX make this less ghetto
 					//localStorage.setItem('type', user.BusinessType);
-					this.router.navigate(['/dashboard']);
+					this.loadInfo(user.employeeId);
+					//this.router.navigate(['/dashboard']);
 					
 					break;
 				} else {
@@ -385,4 +389,72 @@ export class LoginComponent implements AfterViewInit  {
 		});
 
 	  }
+
+	  loadInfo(_id): Promise<any>  {
+    	let usersList = [];
+		return this.serviceLogin.getEmployee(_id)
+		.toPromise()
+		.then((result) => {
+			this.errorMessage = null;
+			//result.forEach(user => {
+			//	usersList.push(user);
+			//});
+			usersList.push(result[0]);     
+		})
+		.then(() => {	
+			for (let user of usersList) {
+				//console.log("wow");
+				//console.log(user);
+				localStorage.setItem('employeetype', user.employeeType);
+				this.loadBusinessInfo(user.worksFor.split("#")[1]);
+				break;
+			}
+		}).catch((error) => {
+			if(error == 'Server error'){
+				this.errorMessage = "Could not connect to REST server. Please check your configuration details";
+			}
+			else if (error == '500 - Internal Server Error') {
+			  this.errorMessage = "Input error";
+			}
+			else{
+				this.errorMessage = error;
+			}
+		});
+
+	}
+
+	loadBusinessInfo(_id): Promise<any>  {
+    	let usersList = [];
+		return this.serviceLogin.getBusiness(_id)
+		.toPromise()
+		.then((result) => {
+			this.errorMessage = null;
+			//result.forEach(user => {
+			//	usersList.push(user);
+				usersList.push(result[0]);
+			//});     
+		})
+		.then(() => {	
+			for (let user of usersList) {
+				//console.log("wow2");
+				//console.log(user);
+				localStorage.setItem('type', user.businessType);
+				localStorage.setItem('businessName', user.name);
+				localStorage.setItem('businessid', user.businessId);
+				this.router.navigate(['/dashboard']);
+				break;
+			}
+		}).catch((error) => {
+			if(error == 'Server error'){
+				this.errorMessage = "Could not connect to REST server. Please check your configuration details";
+			}
+			else if (error == '500 - Internal Server Error') {
+			  this.errorMessage = "Input error";
+			}
+			else{
+				this.errorMessage = error;
+			}
+		});
+
+	}
  }

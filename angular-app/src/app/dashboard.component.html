@@ -29,22 +29,20 @@
 							  <th scope="col">Medicine ID</th>
 							  <th scope="col">Medicine Name</th>
 							  <th scope="col">Medicine Amount</th>
-							  <th scope="col">Package Type</th>
 							</tr>
 						  </thead>
 						  <tbody>
 							<tr *ngFor="let item of items">
-							  <th scope="row">{{item.ItemType.itemTypeMedId}}</th>
-							  <td>{{item.ItemType.itemTypeName}}</td>
-							  <td>{{item.ItemType.itemTypeAmount}}{{item.ItemType.itemTypeUoM}}</td>
-							  <td>{{item.packageType}}</td>
+							  <th scope="row">{{item.itemId}}</th>
+							  <td>{{item.itemType.split("#")[1]}}</td>
+							  <td>{{item.amountOfMedication}}{{item.itemTypeUoM}}</td>
 							</tr>
-							<tr *ngFor="let itemt of itemtypes">
+							<!--<tr *ngFor="let itemt of itemtypes">
 							  <th scope="row">{{itemt.itemTypeMedId}}</th>
 							  <td>{{itemt.itemTypeName}}</td>
 							  <td>{{itemt.itemTypeAmount}}{{itemt.itemTypeUoM}}</td>
 							  <td>Normal</td>
-							</tr>
+							</tr>-->
 						  </tbody>
 						</table>
 						
@@ -58,31 +56,31 @@
 							  <th scope="col">Status</th>
 							  <th scope="col">Seller</th>
 							  <th scope="col">Buyer</th>
-							  <th scope="col">Medicine</th>
+							  <!--<th scope="col">Medicine</th>
 							  <th scope="col">UnitPrice</th>
-							  <th scope="col">Quantity</th>
+							  <th scope="col">Quantity</th>-->
 							</tr>
 						  </thead>
 						  <tbody>
 							<tr *ngFor="let contract of contracts">
-							  <th scope="row">{{contract.id}}</th>
+							  <th scope="row">{{contract.contractId}}</th>
 							  <td>{{contract.status}}</td>
-							  <td>{{contract.sellingBusiness.name}}</td>
-							  <td>{{contract.buyingBusiness.name}}</td>
-							  <td>{{contract.ItemType.itemTypeName}}</td>
+							  <td>{{contract.sellingBusiness.split("#")[1]}}</td>
+							  <td>{{contract.buyingBusiness.split("#")[1]}}</td>
+							  <!--<td>{{contract.ItemType.itemTypeName}}</td>
 							  <td>{{contract.unitPrice}}</td>
-							  <td>{{contract.quantity}}</td>
+							  <td>{{contract.quantity}}</td>-->
 							</tr>
 							<tr *ngFor="let contract of pendingcontracts">
 							  <th scope="row">{{contract.id}}</th>
 							  <td>{{contract.status}}
 							  <button type="button" class="btn btn-success" style='background-color: #8bc34a !important; border: none;' (click)='updateContract(contract.str, true)'>&#10004;</button>
 							  <button type="button" class="btn btn-danger" style='background-color: #f44336 !important; border: none;' (click)='updateContract(contract.str, false)'>&#10005;</button></td>
-							  <td>{{contract.sellingBusiness.name}}</td>
-							  <td>{{contract.buyingBusiness.name}}</td>
-							  <td>{{contract.ItemType.itemTypeName}}</td>
+							  <td>{{contract.sellingBusiness.split("#")[1]}}</td>
+							  <td>{{contract.buyingBusiness.split("#")[1]}}</td>
+							  <!--<td>{{contract.ItemType.itemTypeName}}</td>
 							  <td>{{contract.unitPrice}}</td>
-							  <td>{{contract.quantity}}</td>
+							  <td>{{contract.quantity}}</td>-->
 							</tr>
 						  </tbody>
 						</table>
@@ -163,7 +161,7 @@
 					<label for="ItemBuy">What Item:</label>
 					<!--<input class="form-control" id='ItemBuy' type='text' placeholder='Item'/>-->
 					<select class="form-control" id='ItemBuy'>
-					  <option *ngFor="let i of allItems" value='{{i.str}}'>{{i.ItemType.itemTypeName}}</option>
+					  <option *ngFor="let i of allItems" value='{{i.str}}'>{{i.itemType.split("#")[1]}}</option>
 					</select>
 				</div><div class="form-group">
 					<label for="UnitPrice">Unit Price:</label>
