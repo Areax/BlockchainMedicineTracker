@@ -1,8 +1,9 @@
 import { Component, AfterViewInit, AfterViewChecked } from '@angular/core';
 import { LoginService } from './Login.service';
 import 'rxjs/add/operator/toPromise';
-import { Contract } from './models';
+//import { Contract } from './models';
 import { Router } from "@angular/router";
+import { Users, Business, Item, ItemType, Contract } from './models';
 	
 @Component({
   moduleId: module.id,
@@ -106,7 +107,7 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 		var nmtuom = (<HTMLInputElement>document.getElementById("nmtuom")).value;
 		var nmtid = (<HTMLInputElement>document.getElementById("nmtid")).value;
 		
-		var itemtype = new Object();
+		var itemtype: Item;
 		//itemtype.itemTypeId = ""+Math.floor(Math.random()*100000);
 		itemtype.itemTypeMedId = ""+parseInt(nmtid);
 		itemtype.itemTypeName = nmtname;

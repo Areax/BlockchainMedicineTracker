@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { DataService } from './data.service';
 import { Observable } from 'rxjs/Observable';
-import { Users, Business, Item, ItemType, Contract } from './models';
+import { Address, Users, Employee, Business, Item, ItemType, Contract } from './models';
 
 
 import 'rxjs/Rx';
@@ -11,11 +11,13 @@ import 'rxjs/Rx';
 export class LoginService {
 
 	
-	private USERS: string = 'users';  
-	private BUSINESS: string = 'Business';  
+	private USERS: string = 'org.mat.User';  
+	private BUSINESS: string = 'org.mat.Business';  
 	private ITEM: string = 'org.mat.Item';  
-	private ITEMTYPE: string = 'ItemType';  
-	private CONTRACT: string = 'Contract';  
+	private ITEMTYPE: string = 'org.mat.ItemType';  
+  private CONTRACT: string = 'org.mat.Contract';  
+  private ADDRESS: string = 'org.mat.Address';  
+	private EMPLOYEE: string = 'org.mat.Employee';  
 	
     constructor(private residentService: DataService<any>) {
     };
@@ -29,8 +31,8 @@ export class LoginService {
       return this.residentService.getSingle(this.USERS, id);
     }
 
-    public addUser(itemToAdd: any): Observable<Users> {
-      return this.residentService.add(this.USERS, itemToAdd);
+    public getUser(id: any): Observable<Users> {
+      return this.residentService.getSingle(this.USERS, id);
     }
 
     public deleteUser(id: any): Observable<Users> {
@@ -123,5 +125,9 @@ export class LoginService {
 
     public updateContract(id: any, itemToUpdate: any): Observable<Contract> {
       return this.residentService.update(this.CONTRACT, id, itemToUpdate);
+    }
+
+    public addEmployee(itemToAdd: any): Observable<Employee> {
+      return this.residentService.add(this.EMPLOYEE, itemToAdd);
     }
 }
