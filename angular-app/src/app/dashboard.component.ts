@@ -3,7 +3,7 @@ import { LoginService } from './Login.service';
 import 'rxjs/add/operator/toPromise';
 //import { Contract } from './models';
 import { Router } from "@angular/router";
-import { Address, Users, Employee, BusinessType, EmployeeType, Business, Item, ItemType, Contract } from './models';
+import { Address, Users, Employee, BusinessType, EmployeeType, Business, Item, ItemRequest, ItemType, Contract } from './models';
 	
 @Component({
   moduleId: module.id,
@@ -26,7 +26,7 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 	contracts;
 	pendingcontracts;
 	items;
-	itemtypes;
+	newcontractitems;
 	allbusinesses;
 	type: string;
 	isManufacturer: boolean;
@@ -38,7 +38,7 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 	  this.contracts = new Array();
 	  this.pendingcontracts = new Array();
 	  this.items = new Array();
-	  this.itemtypes = new Array();
+	  this.newcontractitems = new Array();
 	  this.type = localStorage.getItem('type');
 	  if(this.type=="Manufacturer")
 		  this.isManufacturer = true;
@@ -47,7 +47,7 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 	  
 
 	  this.loadBusinesses();
-	  this.loadContracts("org.mat.Business#"+localStorage.getItem("businessid"));
+	  this.loadContracts("resource:org.mat.Business#"+encodeURIComponent(localStorage.getItem("businessid")));
 	  this.loadItems(this.business);
 	  
     }
@@ -74,13 +74,15 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 		
 		if(bool){
 			//console.log("add");
-			contract.status="Accepted";
+			contract.status="CONFIRMED";
+			//console.log(contract);
 			this.updateContractS(contract);
 		} else {
-			//console.log("delete");
-			this.deleteContract(contract.id);
+			console.log("delete");
+			contract.status="CANCELLED";
+			this.updateContractS(contract);
 		}
-		location.reload();
+		//location.reload();
 	}
 	
 	resize(){
@@ -170,23 +172,23 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 
 	addNewMedicine(){
 		var nmtamount = (<HTMLInputElement>document.getElementById("nmtamount")).value;
-		var nmpackage = (<HTMLInputElement>document.getElementById("nmpackage")).value;
+		//var nmpackage = (<HTMLInputElement>document.getElementById("nmpackage")).value;
 		var nmtname = (<HTMLInputElement>document.getElementById("nmtname")).value;
 		var nmtuom = (<HTMLInputElement>document.getElementById("nmtuom")).value;
 		var nmtid = (<HTMLInputElement>document.getElementById("nmtid")).value;
 		
-		var itemtype: Item;
-		//itemtype.itemTypeId = ""+Math.floor(Math.random()*100000);
-		itemtype.itemTypeMedId = ""+parseInt(nmtid);
+		var itemtype: ItemType;
+		itemtype = new ItemType();
 		itemtype.itemTypeName = nmtname;
-		itemtype.itemTypeAmount = ""+parseInt(nmtamount);
-		itemtype.itemTypeUoM = nmtuom;
 		
-		var item = new Object();
-		//item.itemId = ""+Math.floor(Math.random()*100000);
-		item.packageType = nmpackage;
-		item.Business = this.business; // got to fix
-		item.ItemType = itemtype;
+		
+		var item: Item; 
+		item = new Item();
+		item.itemId = this.business+"-"+nmtid+"-"+nmtname;
+		item.itemType = "org.mat.ItemType#"+nmtname;
+		item.itemTypeUoM = nmtuom;
+		item.amountOfMedication = parseInt(nmtamount);
+		item.currentOwner = "org.mat.Business#"+localStorage.getItem("businessid");
 		
 		this.addItemType(itemtype);
 		this.addItem(item);
@@ -203,30 +205,32 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 		var quantity = (<HTMLInputElement>document.getElementById("Quantity")).value;
 		
 		var today = new Date();
-		var dd = today.getDate();
-		var mm = today.getMonth()+1; //January is 0!
-		var yyyy = today.getFullYear();
-
-		if(dd<10) {
-			dd = '0'+dd
-		} 
-
-		if(mm<10) {
-			mm = '0'+mm
-		} 
-
-		today = mm + '/' + dd + '/' + yyyy;
 		
-		var contract = new Object();
-		contract.status = "Pending";
-		contract.date = today;
-		contract.sellingBusiness = JSON.parse(sellingbusiness);
-		contract.buyingBusiness = JSON.parse(buyingbusiness);
-		contract.ItemType = JSON.parse(itembuy);
-		contract.unitPrice = unitprice;
-		contract.quantity = quantity;
+		var itemRequest: ItemRequest;
+		itemRequest = new ItemRequest();
+		itemRequest.requestedItem = "org.mat.Item#"+JSON.parse(itembuy).itemId; 
+		itemRequest.unitPrice = parseFloat(unitprice);
+		itemRequest.quantity = parseInt(quantity);
+		itemRequest.itemRequestId = "Tempaf"; //To-Do Fix (eventually will be removed)
+
+		var contract: Contract;
+		contract = new Contract();
+		contract.contractId = JSON.parse(itembuy).itemType.split("#")[1]+"_"+today;
+		contract.status = "WAITING_CONFIRMATION";
+		contract.arrivalDateTime = today;
+		contract.sellingBusiness = "org.mat.Business#"+JSON.parse(sellingbusiness).businessId;
+		contract.buyingBusiness = "org.mat.Business#"+JSON.parse(buyingbusiness).businessId;
+
+		//contract.ItemType = JSON.parse(itembuy);
+		//contract.unitPrice = unitprice;
+		//contract.quantity = quantity;
+
+		//ItemRequest
+		contract.requestedItems = [itemRequest];
 		
 		//console.log(contract);
+
+		//eventually
 		this.addContract(contract);
 		this.contracts.push(contract);
 	}
@@ -236,12 +240,13 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
     //retrieve all residents
 		let itemsList = [];
 		//return this.serviceLogin.getAllItems()
-		return this.serviceLogin.getItem("org.mat.Business#"+this.business)
+		return this.serviceLogin.getItem("resource:org.mat.Business#"+encodeURIComponent(localStorage.getItem("businessid")))
 		.toPromise()
 		.then((result) => {
 				this.errorMessage = null;
+				//console.log(result);
 			  result.forEach(item => {
-				item.str = JSON.stringify(item.ItemType);
+				item.str = JSON.stringify(item);
 				itemsList.push(item);
 				
 			  });     
@@ -260,44 +265,49 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 		  this.allItems = itemsList;
 		  
 		  //console.log(this.contracts);
+		  //console.log("temp");
 		  for(var i = 0; i<this.contracts.length; i++){
-				var temp = this.contracts[i].ItemType;
-				if(this.contracts[i].status=="Pending")
+				var temp = this.contracts[i].requestedItems[0]; //TO-DO make this work for multiple medicines
+				if(this.contracts[i].status=="WAITING_CONFIRMATION")
 					continue;
-				//console.log("temp");
-				//console.log(i);
+				if(this.contracts[i].status=="CANCELLED")
+					continue;
+
+				//console.log("ads");
 				//console.log(temp);
 				//console.log(this.contracts[i].ItemType);
-				temp.itemTypeAmount = this.contracts[i].quantity;
+				//temp.itemTypeAmount = this.contracts[i].quantity;
 				var foundmatch = null;
 				for(var y = 0; y<this.items.length; y++){
-					//console.log(this.items[y].ItemType);
-					//console.log(this.items[y].ItemType.id+" "+temp.id);
+					//console.log(this.items[y]);
+					//console.log("resource:org.mat.Item#"+encodeURIComponent(this.items[y].itemId)+" "+temp.requestedItem);
 					//console.log(temp);
-					if(this.items[y].ItemType.id==temp.id){
-						foundmatch = this.items[y].ItemType;
+					if("resource:org.mat.Item#"+encodeURIComponent(this.items[y].itemId)==temp.requestedItem){
+						foundmatch = this.items[y];
 						break;
 					}
 				}
 				if(foundmatch==null){
-					for(var y = 0; y<this.itemtypes.length; y++){
-						//console.log(this.itemtypes[y].id+" "+temp.id);
-						if(this.itemtypes[y].id==temp.id){
-							foundmatch = this.itemtypes[y];
-							break
+					for(var y = 0; y<this.newcontractitems.length; y++){ //incase its not in the medicines (but we just added the medicine)
+						//console.log(this.newcontractitems[y].id+" "+temp.id);
+						if("resource:org.mat.Item#"+encodeURIComponent(this.newcontractitems[y].itemId)==temp.requestedItem){
+							foundmatch = this.newcontractitems[y];
+							break;
 						}
 					}
 				}
 				if(foundmatch!=null){
-					var tempamountchange = this.contracts[i].sellingBusiness.name==this.business?-1:1;
-					foundmatch.itemTypeAmount = ""+(parseInt(foundmatch.itemTypeAmount)+parseInt(temp.itemTypeAmount)*tempamountchange);
+					//console.log(this.contracts[i].sellingBusiness);
+					//console.log("resource:org.mat.Business#"+encodeURIComponent(localStorage.getItem("businessid")));
+					var tempamountchange = this.contracts[i].sellingBusiness=="resource:org.mat.Business#"+encodeURIComponent(localStorage.getItem("businessid"))?-1:1;
+					foundmatch.amountOfMedication = ""+(parseInt(foundmatch.amountOfMedication)+parseInt(temp.quantity)*tempamountchange);
 					
 					//console.log("1");
 					//console.log(foundmatch);
 				} else {
-					//console.log("2");
-					//console.log(temp);
-					this.itemtypes.push(temp);
+					//old method
+					//this.newcontractitems.push(temp);
+					this.getItem(this.contracts[i].sellingBusiness, temp);
 				}
 		  }
 		  //console.log(this.items);
@@ -307,6 +317,50 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 			}
 			else if (error == '500 - Internal Server Error') {
 			  this.errorMessage = "Input error";
+			  setTimeout(this.loadItems(name), 1000);
+			}
+			else{
+				this.errorMessage = error;
+			}
+		});
+
+	  }
+
+	  getItem(name, contractitem): Promise<any>  {
+    
+    //retrieve all residents
+		let itemsList = [];
+		//return this.serviceLogin.getAllItems()
+		return this.serviceLogin.getItem(name)
+		.toPromise()
+		.then((result) => {
+				this.errorMessage = null;
+			  	//console.log("gee wilikers");
+			  	//console.log(result);
+			  result.forEach(item => {
+				//item.str = JSON.stringify(item);
+				itemsList.push(item);
+				
+			  });     
+		})
+		.then(() => {
+			for (let item of itemsList) {
+				//console.log("beep");
+				//console.log(contractitem.requestedItem);
+				//console.log("resource:org.mat.Item#"+encodeURIComponent(item.itemId));
+				if(contractitem.requestedItem == "resource:org.mat.Item#"+encodeURIComponent(item.itemId)){
+					item.amountOfMedication = contractitem.quantity;
+					this.newcontractitems.push(item);
+					break;
+				}
+			}
+		}).catch((error) => {
+			if(error == 'Server error'){
+				this.errorMessage = "Could not connect to REST server. Please check your configuration details";
+			}
+			else if (error == '500 - Internal Server Error') {
+			  this.errorMessage = "Input error";
+			  setTimeout(this.getItem(name, contractitem), 1000);
 			}
 			else{
 				this.errorMessage = error;
@@ -336,6 +390,7 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 			}
 			else if (error == '500 - Internal Server Error') {
 			  this.errorMessage = "Input error";
+			  setTimeout(this.loadBusinesses(), 1000);
 			}
 			else{
 				this.errorMessage = error;
@@ -355,12 +410,16 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 			  result.forEach(item => {
 				contractsList.push(item);
 			  });     
+			  //console.log(result);
 		})
 		.then(() => {
 
 		  for (let contract of contractsList) {
-			if(contract.sellingBusiness.name==name||contract.buyingBusiness.name==name){
-				if(contract.status=="Pending"&&contract.buyingBusiness.name==name){
+		  	//console.log(contract.sellingBusiness+" vs "+name);
+			if(contract.sellingBusiness==name||contract.buyingBusiness==name){
+				if(contract.status=="CANCELLED"){
+
+				} else if(contract.status=="WAITING_CONFIRMATION"&&contract.buyingBusiness==name){
 					contract.str = JSON.stringify(contract);
 					this.pendingcontracts.push(contract);
 				} else {
@@ -377,6 +436,7 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 			}
 			else if (error == '500 - Internal Server Error') {
 			  this.errorMessage = "Input error";
+			  setTimeout(this.loadContracts(name), 1000);
 			}
 			else{
 				this.errorMessage = error;
@@ -398,6 +458,7 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 			}
 			else if (error == '500 - Internal Server Error') {
 			  this.errorMessage = "Input error";
+			  setTimeout(this.addItem(item), 1000);
 			}
 			else{
 				this.errorMessage = error;
@@ -418,6 +479,7 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 			}
 			else if (error == '500 - Internal Server Error') {
 			  this.errorMessage = "Input error";
+			  setTimeout(this.addItemType(item), 1000);
 			}
 			else{
 				this.errorMessage = error;
@@ -438,6 +500,7 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 			}
 			else if (error == '500 - Internal Server Error') {
 			  this.errorMessage = "Input error";
+			  setTimeout(this.addContract(item), 1000);
 			}
 			else{
 				this.errorMessage = error;
@@ -446,10 +509,11 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 	}
 	
 	updateContractS(item): Promise<any>  {
-		return this.serviceLogin.updateContract(item.id, item)
+		return this.serviceLogin.updateContract(item.contractId, item)
 		.toPromise()
 		.then(() => {
 				this.errorMessage = null;
+				location.reload();
 		})
 		.then(() => {
 		}).catch((error) => {
@@ -458,6 +522,7 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 			}
 			else if (error == '500 - Internal Server Error') {
 			  this.errorMessage = "Input error";
+			  setTimeout(this.updateContractS(item), 1000);
 			}
 			else{
 				this.errorMessage = error;
@@ -478,6 +543,7 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 			}
 			else if (error == '500 - Internal Server Error') {
 			  this.errorMessage = "Input error";
+			  setTimeout(this.deleteContract(id), 1000);
 			}
 			else{
 				this.errorMessage = error;

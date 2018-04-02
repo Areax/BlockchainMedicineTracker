@@ -31,7 +31,7 @@ export class LoginService {
       return this.residentService.add(this.USERS, itemToAdd);
     }
 
-    public getUser(id: any): Observable<Users> {
+    public getUser(id: any): Observable<Users[]> {
       return this.residentService.getSingle(this.USERS, id, "userEmail");
     }
 
@@ -48,7 +48,7 @@ export class LoginService {
         return this.residentService.getAll(this.BUSINESS);
     }
 
-    public getBusiness(id: any): Observable<Business> {
+    public getBusiness(id: any): Observable<Business[]> {
       return this.residentService.getSingle(this.BUSINESS, id, "businessId");
     }
 
@@ -69,7 +69,7 @@ export class LoginService {
         return this.residentService.getAll(this.ITEM);
     }
 
-    public getItem(id: any): Observable<Item> {
+    public getItem(id: any): Observable<Item[]> {
       return this.residentService.getSingle(this.ITEM, id, "currentOwner");
     }
 
@@ -131,7 +131,7 @@ export class LoginService {
       return this.residentService.add(this.EMPLOYEE, itemToAdd);
     }
 
-    public getEmployee(id: any): Observable<Employee> {
+    public getEmployee(id: any): Observable<Employee[]> {
       return this.residentService.getSingle(this.EMPLOYEE, id, "employeeId");
     }
 }

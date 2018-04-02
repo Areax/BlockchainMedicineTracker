@@ -37,50 +37,49 @@
 							  <td>{{item.itemType.split("#")[1]}}</td>
 							  <td>{{item.amountOfMedication}}{{item.itemTypeUoM}}</td>
 							</tr>
-							<!--<tr *ngFor="let itemt of itemtypes">
-							  <th scope="row">{{itemt.itemTypeMedId}}</th>
-							  <td>{{itemt.itemTypeName}}</td>
-							  <td>{{itemt.itemTypeAmount}}{{itemt.itemTypeUoM}}</td>
-							  <td>Normal</td>
-							</tr>-->
+							<tr *ngFor="let itemt of newcontractitems">
+							  <th scope="row">{{itemt.itemId}}</th>
+							  <td>{{itemt.itemType.split("#")[1]}}</td>
+							  <td>{{itemt.amountOfMedication}}{{itemt.itemTypeUoM}}</td>
+							</tr>
 						  </tbody>
 						</table>
 						
 					</div>
-					<div class='col-md-6'>
+					<div class='col-md-6 col-sm-6 col-xs-6 col-lg-6 ' >
 						<h3>Contracts:</h3>
 						<table class="table">
 						  <thead>
 							<tr>
-							  <th scope="col">ID</th>
+							  <!--<th scope="col">ID</th>-->
 							  <th scope="col">Status</th>
 							  <th scope="col">Seller</th>
 							  <th scope="col">Buyer</th>
-							  <!--<th scope="col">Medicine</th>
+							  <th scope="col">Medicine</th>
 							  <th scope="col">UnitPrice</th>
-							  <th scope="col">Quantity</th>-->
+							  <th scope="col">Quantity</th>
 							</tr>
 						  </thead>
 						  <tbody>
 							<tr *ngFor="let contract of contracts">
-							  <th scope="row">{{contract.contractId}}</th>
-							  <td>{{contract.status}}</td>
-							  <td>{{contract.sellingBusiness.split("#")[1]}}</td>
-							  <td>{{contract.buyingBusiness.split("#")[1]}}</td>
-							  <!--<td>{{contract.ItemType.itemTypeName}}</td>
-							  <td>{{contract.unitPrice}}</td>
-							  <td>{{contract.quantity}}</td>-->
+							  <!--<th scope="row">{{contract.contractId}}</th>-->
+							  <th scope="row">{{contract.status}}</th>
+							  <td>{{contract.sellingBusiness.split("#")[1].replace("%20", " ")}}</td>
+							  <td>{{contract.buyingBusiness.split("#")[1].replace("%20", " ")}}</td>
+							  <td>{{contract.requestedItems[0].requestedItem.split("#")[1].replace("%20", " ")}}</td> <!--TO-DO make it add multiple items -->
+							  <td>{{contract.requestedItems[0].unitPrice}}</td>
+							  <td>{{contract.requestedItems[0].quantity}}</td>
 							</tr>
 							<tr *ngFor="let contract of pendingcontracts">
-							  <th scope="row">{{contract.id}}</th>
-							  <td>{{contract.status}}
+							  <!--<th scope="row">{{contract.id}}</th>-->
+							  <th scope="row">{{contract.status}}
 							  <button type="button" class="btn btn-success" style='background-color: #8bc34a !important; border: none;' (click)='updateContract(contract.str, true)'>&#10004;</button>
-							  <button type="button" class="btn btn-danger" style='background-color: #f44336 !important; border: none;' (click)='updateContract(contract.str, false)'>&#10005;</button></td>
-							  <td>{{contract.sellingBusiness.split("#")[1]}}</td>
-							  <td>{{contract.buyingBusiness.split("#")[1]}}</td>
-							  <!--<td>{{contract.ItemType.itemTypeName}}</td>
-							  <td>{{contract.unitPrice}}</td>
-							  <td>{{contract.quantity}}</td>-->
+							  <button type="button" class="btn btn-danger" style='background-color: #f44336 !important; border: none;' (click)='updateContract(contract.str, false)'>&#10005;</button></th>
+							  <td>{{contract.sellingBusiness.split("#")[1].replace("%20", " ")}}</td>
+							  <td>{{contract.buyingBusiness.split("#")[1].replace("%20", " ")}}</td>
+							  <td>{{contract.requestedItems[0].requestedItem.split("#")[1].replace("%20", " ")}}</td> <!--TO-DO make it add multiple items -->
+							  <td>{{contract.requestedItems[0].unitPrice}}</td>
+							  <td>{{contract.requestedItems[0].quantity}}</td>
 							</tr>
 						  </tbody>
 						</table>
@@ -121,9 +120,6 @@
 				</div><div class="form-group">
 					<label for="nmid">Medical ID:</label>
 					<input class="form-control" id='nmtid' type='number' placeholder='Medical ID'/>
-				</div><div class="form-group">
-					<label for="nmpackage">Package Type:</label>
-					<input class="form-control" id='nmpackage' type='test' placeholder='Package Type'/>
 				</div>
 			</form>
         </div>
@@ -147,7 +143,7 @@
             <form>
 				<div class="form-group">
 					<label for="SellingBusiness">Selling Business:</label>
-					<select class="form-control" id='SellingBusiness' disabled="true">
+					<select class="form-control" id='SellingBusiness' ><!--disabled="true"-->
 					  <option *ngFor="let b of allbusinesses" value='{{b.str}}'>{{b.name}}</option>
 					</select>
 					<!--<input class="form-control" id='SellingBusiness' type='text' placeholder='Selling Business'/>-->

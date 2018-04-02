@@ -29,10 +29,11 @@ export class ItemType {
 
 export class Item {
 	itemId: string;
-	itemTypeUoM: UoM;
+	itemTypeUoM: string;
 	amountOfMedication: number;
 	currentOwner: string;
-	itemType: ItemType;
+	itemType: string;
+	str: string;
 }
 
 export class Shipment {
@@ -45,7 +46,7 @@ export class Shipment {
 }
 
 export class ItemRequest {
-	//itemRequestId: string;
+	itemRequestId: string;
 	requestedItem: string;
 	unitPrice: number;
 	quantity: number;
@@ -53,12 +54,13 @@ export class ItemRequest {
 
 export class Contract {
 	contractId: string;
-	status: Status;
-	arivalDateTime: string;
-	requestItems: string[];
+	status: string;
+	arrivalDateTime: Date;
+	requestedItems: ItemRequest[];
 	sellingBusiness: string;
 	buyingBusiness: string;
 	shipments: string[];
+	str: string;
 }
 
 export class Users {
@@ -81,6 +83,7 @@ export class Business {
 	accountBalance: number;
 	inventory: string[];
 	employees: string[];
+	str: string;
 }
 
 export class Employee {

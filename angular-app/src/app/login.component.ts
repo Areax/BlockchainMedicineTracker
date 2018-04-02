@@ -62,7 +62,7 @@ export class LoginComponent implements AfterViewInit  {
 		var inputemail = (<HTMLInputElement>document.getElementById("inputEmail")).value;
 		var inputpassword = (<HTMLInputElement>document.getElementById("inputPassword")).value;
 		var inputpassword2 = Md5.hashStr(inputpassword);
-		this.isUser(inputemail, inputpassword2);
+		this.isUser(inputemail.toLowerCase(), inputpassword2);
 		
 	}
 	
@@ -173,7 +173,7 @@ export class LoginComponent implements AfterViewInit  {
 		var business: Business;
 		business = new Business();
 		business.businessId = inputname+inputaddressstreet;
-		business.PoCEmail = inputemail;
+		business.PoCEmail = inputemail.toLowerCase();
 		business.PoCName = inputfirstname+" "+inputlastname;
 		business.name = inputname;
 		business.businessType = inputtype;
@@ -193,7 +193,7 @@ export class LoginComponent implements AfterViewInit  {
 		employee.employeeId = inputname+"."+inputfirstname+"."+inputlastname+"."+inputemail;
 		employee.firstName = inputfirstname;
 		employee.lastName = inputlastname;
-		employee.email = inputemail;
+		employee.email = inputemail.toLowerCase();
 		employee.employeeType = "Admin";
 		//TO-DO ADD PHONE NUMBER OPTIONAL
 		employee.worksFor = "org.mat.Business#"+business.businessId;
@@ -202,7 +202,7 @@ export class LoginComponent implements AfterViewInit  {
 		var user: Users;
 		user = new Users();
 		user.employeeId = inputname+"."+inputfirstname+"."+inputlastname+"."+inputemail;
-		user.userEmail = inputemail;
+		user.userEmail = inputemail.toLowerCase();
 		user.password = inputpassword2 as string;
 		this.addUser(user);
 
@@ -287,6 +287,7 @@ export class LoginComponent implements AfterViewInit  {
 			}
 			else if (error == '500 - Internal Server Error') {
 			  this.errorMessage = "Input error";
+			  setTimeout(this.addBusiness(business), 1000);
 			}
 			else{
 				this.errorMessage = error;
@@ -309,6 +310,7 @@ export class LoginComponent implements AfterViewInit  {
 			}
 			else if (error == '500 - Internal Server Error') {
 			  this.errorMessage = "Input error";
+			  setTimeout(this.addEmployee(employee), 1000);
 			}
 			else{
 				this.errorMessage = error;
@@ -331,6 +333,7 @@ export class LoginComponent implements AfterViewInit  {
 			}
 			else if (error == '500 - Internal Server Error') {
 			  this.errorMessage = "Input error";
+			  setTimeout(this.addUser(user), 1000);
 			}
 			else{
 				this.errorMessage = error;
@@ -346,22 +349,28 @@ export class LoginComponent implements AfterViewInit  {
 		.toPromise()
 		.then((result) => {
 				this.errorMessage = null;
-			  //result.forEach(user => {
-			 //	usersList.push(user);
-			 // });
+			 result.forEach(user => {
+			 	usersList.push(user);
+			  });
 			 //console.log(result);
-			 usersList.push(result[0]);     
+			 //usersList.push(result[0]);     
 		})
 		.then(() => {
 			
 		  var foundany = false;
 		  for (let user of usersList) {
-		  	if(user.userEmail==_email.toLowerCase()){
+		  	//console.log(user);
+		  	 //console.log(_email.toLowerCase());
+		  	 //console.log(user.userEmail);
+		  	if(user.userEmail.toLowerCase()==_email.toLowerCase()){
 				foundany = true;
+				console.log("idk");
 				if(user.password==_password){
+					console.log("FOUND");
 					localStorage.setItem('email', user.userEmail);
 					localStorage.setItem('id', user.employeeId);
-					localStorage.setItem('name', user.employeeId.split(".")[1]+" "+user.employeeId.split(".")[2]); //TO-FIX make this less ghetto
+					localStorage.setItem('name', user.employeeId.split(".")[0]); //TO-FIX make this less ghetto
+					localStorage.setItem('actualname', user.employeeId.split(".")[1]+" "+user.employeeId.split(".")[2]); //TO-FIX make this less ghetto
 					//localStorage.setItem('type', user.BusinessType);
 					this.loadInfo(user.employeeId);
 					//this.router.navigate(['/dashboard']);
@@ -382,6 +391,7 @@ export class LoginComponent implements AfterViewInit  {
 			}
 			else if (error == '500 - Internal Server Error') {
 			  this.errorMessage = "Input error";
+			  setTimeout(this.isUser(_email, _password), 1000);
 			}
 			else{
 				this.errorMessage = error;
@@ -406,7 +416,8 @@ export class LoginComponent implements AfterViewInit  {
 				//console.log("wow");
 				//console.log(user);
 				localStorage.setItem('employeetype', user.employeeType);
-				this.loadBusinessInfo(user.worksFor.split("#")[1]);
+				//console.log(decodeURIComponent(user.worksFor.split("#")[1]));
+				this.loadBusinessInfo(decodeURIComponent(user.worksFor.split("#")[1]));
 				break;
 			}
 		}).catch((error) => {
@@ -415,6 +426,7 @@ export class LoginComponent implements AfterViewInit  {
 			}
 			else if (error == '500 - Internal Server Error') {
 			  this.errorMessage = "Input error";
+			  setTimeout(this.loadInfo(_id), 1000);
 			}
 			else{
 				this.errorMessage = error;
@@ -432,6 +444,7 @@ export class LoginComponent implements AfterViewInit  {
 			//result.forEach(user => {
 			//	usersList.push(user);
 				usersList.push(result[0]);
+				//console.log(result);
 			//});     
 		})
 		.then(() => {	
@@ -449,6 +462,7 @@ export class LoginComponent implements AfterViewInit  {
 				this.errorMessage = "Could not connect to REST server. Please check your configuration details";
 			}
 			else if (error == '500 - Internal Server Error') {
+				setTimeout(this.loadBusinessInfo(_id), 1000);
 			  this.errorMessage = "Input error";
 			}
 			else{
