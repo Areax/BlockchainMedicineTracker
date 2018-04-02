@@ -28,14 +28,18 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 	items;
 	newcontractitems;
 	allbusinesses;
+	actualname;
 	type: string;
 	isManufacturer: boolean;
+	onItemsOwned: boolean;
+	onContracts: boolean;
 	
 	constructor(private serviceLogin:LoginService,private router: Router){
 	  //this.loadInfo(localStorage.getItem('id'));
 	  //console.log("now here");
 	  this.business = localStorage.getItem("name");
 	  this.contracts = new Array();
+	  this.actualname = localStorage.getItem("actualname");
 	  this.pendingcontracts = new Array();
 	  this.items = new Array();
 	  this.newcontractitems = new Array();
@@ -45,7 +49,8 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 	  else
 		  this.isManufacturer = false;
 	  
-
+	  this.onItemsOwned = true;
+	  this.onContracts = false;
 	  this.loadBusinesses();
 	  this.loadContracts("resource:org.mat.Business#"+encodeURIComponent(localStorage.getItem("businessid")));
 	  this.loadItems(this.business);

@@ -9,19 +9,59 @@
 		text-decoration: underline;
 	}
 </style>
+ <div style='width: 300px; background-color: #484848; position: fixed; left: 0; top: 0; bottom: 0; color: white; z-index: 50;'>
+	<img src='https://www.signicat.com/wp-content/uploads/2014/06/default-profile-picture.png' width="120px" height="120px" style='display: block; width: 120px; margin: 0 auto; margin-top: 50px;'/>		
+	<h2 style='text-align: center; font-size: 18pt;'>{{actualname}}</h2>
+	<h3 style='text-align: center; font-size: 14pt; margin-top: 0; color: #aaa; margin-bottom: 0;'>Company: {{business}}</h3>
+	<hr style='background-color: gray; width: 300px; margin-top: 50px; margin-bottom: 0px; border-top: solid 1px #555555;'>
+	<nav id='navside'>
+		<style>
+			.navlinks {
+				padding: 20px 20px;
+				border-bottom: 1px solid #555555;
+			}
 
+			#navside ul .active a:link {
+				color: white !important;
+			}
+
+			#navside ul .active a {
+				color: white !important;
+			}
+
+			#navside ul .active {
+				background-color: #333;
+			}
+
+			#navside ul li:hover {
+				cursor: pointer;
+				background-color: #333;
+			}
+
+			#navside ul li a:hover {
+				text-decoration: none;
+			}
+		</style>
+		<ul class="list-unstyled components">
+            <li *ngIf="onItemsOwned"  class="active navlinks"><a>Items Owned</a></li>
+            <li *ngIf="!onItemsOwned" (click)="onItemsOwned = true; onContracts = false;" class="navlinks"><a href="#">Items Owned</a></li>
+            <li *ngIf="onContracts" class='active navlinks'><a >Contracts</a></li>
+            <li *ngIf="!onContracts" (click)="onItemsOwned = false; onContracts = true;" class='navlinks'><a href="#">Contracts</a></li>
+        </ul>
+	</nav>
+</div>
 <div id='top' class='container'>
-	<h1 style='margin-left: 20px; text-align: left;'><em>BLOCKCHAIN</em><span>TRACKING</span></h1>
+	<h1 style='margin-left: 320px; text-align: left;'><em>BLOCKCHAIN</em><span>TRACKING</span></h1>
 	<p id='logout' (click)='logout()'>Log Out</p>
 </div>
 <div id='main' style='margin-top: 80px !important;'>
     <!-- Main jumbotron for a primary marketing message or call to action -->
-    <div class='fullsize color4' >
+   
+    <div *ngIf="onItemsOwned" class='fullsize color4' style='margin-left: 300px'>
 		<div class='container'>
 			<div id='trackformfinished'>
-				<h2>Hello {{business}}</h2>
 				<div class='row'>
-					<div class='col-md-6'> <!--make this only show up for manufacturers-->
+					<div class='col-md-12'> <!--make this only show up for manufacturers-->
 						<h3 style='margin:none;'>Item's Owned:</h3>
 						<table class="table">
 						  <thead>
@@ -46,7 +86,21 @@
 						</table>
 						
 					</div>
-					<div class='col-md-6 col-sm-6 col-xs-6 col-lg-6 ' >
+				<div class='row'>
+					<div class='col-md-12'>
+						<button *ngIf="isManufacturer" data-toggle="modal" href="#myModal" class="btn btn-lg btn-block btn-primary buttons2">Add New Item</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	</div>
+	<div *ngIf="onContracts" class='fullsize color4' style='margin-left: 300px'>
+		<div class='container'>
+			<div id='trackformfinished'>
+				<div class='row'>
+					<div class='col-md-12' >
 						<h3>Contracts:</h3>
 						<table class="table">
 						  <thead>
@@ -86,10 +140,7 @@
 					</div>
 				</div>
 				<div class='row'>
-					<div class='col-md-6'>
-						<button *ngIf="isManufacturer" data-toggle="modal" href="#myModal" class="btn btn-lg btn-block btn-primary buttons2">Add New Item</button>
-					</div>
-					<div class='col-md-6'>
+					<div class='col-md-12'>
 						<button data-toggle="modal" href="#myModal3" class="btn btn-lg btn-block btn-primary buttons2">New Contract</button>
 					</div>
 				</div>
