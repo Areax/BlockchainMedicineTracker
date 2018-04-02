@@ -85,7 +85,7 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 			//console.log(contract);
 			this.updateContractS(contract);
 		} else {
-			console.log("delete");
+			//console.log("delete");
 			contract.status="CANCELLED";
 			this.updateContractS(contract);
 		}
@@ -280,6 +280,7 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
     //retrieve all residents
 		let itemsList = [];
 		//return this.serviceLogin.getAllItems()
+		//console.log("resource:org.mat.Business#"+encodeURIComponent(localStorage.getItem("businessid")));
 		return this.serviceLogin.getItem("resource:org.mat.Business#"+encodeURIComponent(localStorage.getItem("businessid")))
 		.toPromise()
 		.then((result) => {
@@ -288,13 +289,11 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 			  result.forEach(item => {
 				item.str = JSON.stringify(item);
 				itemsList.push(item);
-				
 			  });     
 		})
 		.then(() => {
-
-		  for (let item of itemsList) {
-			  //console.log(item);
+		    for (let item of itemsList) {
+			//    console.log(item);
 			 
 			//if(item.Business==name){ //probs gunna have to fix this when actually connecting
 				this.items.push(item);
@@ -302,7 +301,7 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 			//}
 		  }
 		  //console.log(this.items);
-		  this.allItems = itemsList;
+		  //this.allItems = itemsList;
 		  
 		  //console.log(this.contracts);
 		  //console.log("temp");
@@ -318,6 +317,8 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 				//console.log(this.contracts[i].ItemType);
 				//temp.itemTypeAmount = this.contracts[i].quantity;
 				var foundmatch = null;
+				//console.log("asljdnasod1");
+				//console.log(this.items);
 				for(var y = 0; y<this.items.length; y++){
 					//console.log(this.items[y]);
 					//console.log("resource:org.mat.Item#"+encodeURIComponent(this.items[y].itemId)+" "+temp.requestedItem);
@@ -327,9 +328,16 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 						break;
 					}
 				}
+				console.log("mmoooo : "+foundmatch);
 				if(foundmatch==null){
+					console.log(this.newcontractitems);
+					console.log(this.newcontractitems.length);
+					console.log("why");
 					for(var y = 0; y<this.newcontractitems.length; y++){ //incase its not in the medicines (but we just added the medicine)
 						//console.log(this.newcontractitems[y].id+" "+temp.id);
+						console.log("asiudhiuah");
+						console.log("resource:org.mat.Item#"+encodeURIComponent(this.newcontractitems[y].itemId));
+						console.log(temp.requestedItem);
 						if("resource:org.mat.Item#"+encodeURIComponent(this.newcontractitems[y].itemId)==temp.requestedItem){
 							foundmatch = this.newcontractitems[y];
 							break;
@@ -347,7 +355,20 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 				} else {
 					//old method
 					//this.newcontractitems.push(temp);
-					this.getItem(this.contracts[i].sellingBusiness, temp);
+					for(var y = 0; y<this.allItems.length; y++){
+						var tempfound = false;
+						if(this.allItems[y].currentOwner==this.contracts[i].sellingBusiness){
+							//this.getItem(this.contracts[i].sellingBusiness, temp);
+							this.allItems[y].amountOfMedication = this.contracts[i].requestedItems[0].quantity;
+							this.newcontractitems.push(this.allItems[y]);
+							//console.log("hizzle");
+							tempfound = true;
+							break;
+						}
+						if(!tempfound){
+							this.getItem(this.contracts[i].sellingBusiness, temp);
+						}
+					}
 				}
 		  }
 		  //console.log(this.items);
@@ -466,7 +487,7 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 		.then(() => {
 
 		  for (let contract of contractsList) {
-		  	console.log(contract.sellingBusiness+" vs "+name);
+		  	//console.log(contract.sellingBusiness+" vs "+name);
 			if(contract.sellingBusiness==name||contract.buyingBusiness==name){
 				if(contract.status=="CANCELLED"){
 
