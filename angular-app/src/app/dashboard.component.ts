@@ -30,6 +30,7 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 	allbusinesses;
 	actualname;
 	type: string;
+	currentbusiness;
 	isManufacturer: boolean;
 	onItemsOwned: boolean;
 	onContracts: boolean;
@@ -54,6 +55,7 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 	  this.loadBusinesses();
 	  this.loadContracts("resource:org.mat.Business#"+encodeURIComponent(localStorage.getItem("businessid")));
 	  this.loadItems(this.business);
+	  this.loadAllItems();
 	  
     }
 	
@@ -122,8 +124,8 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 		})
 		.then(() => {	
 			for (let user of usersList) {
-				console.log("wow");
-				console.log(user);
+				//console.log("wow");
+				//console.log(user);
 				localStorage.setItem('employeetype', user.employeeType);
 				this.loadBusinessInfo(user.worksFor.split("#")[1]);
 				break;
@@ -154,8 +156,8 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 		})
 		.then(() => {	
 			for (let user of usersList) {
-				console.log("wow2");
-				console.log(user);
+				//console.log("wow2");
+				//console.log(user);
 				localStorage.setItem('type', user.businessType);
 				localStorage.setItem('businessName', user.name);
 				localStorage.setItem('businessid', user.businessId);
@@ -239,6 +241,39 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 		this.addContract(contract);
 		this.contracts.push(contract);
 	}
+
+	loadAllItems(): Promise<any>  {
+    
+    //retrieve all residents
+		let itemsList = [];
+		//return this.serviceLogin.getAllItems()
+		return this.serviceLogin.getAllItems()
+		.toPromise()
+		.then((result) => {
+				this.errorMessage = null;
+				//console.log(result);
+			  result.forEach(item => {
+				item.str = JSON.stringify(item);
+				itemsList.push(item);
+				
+			  });     
+		})
+		.then(() => {
+		  this.allItems = itemsList;
+		  }).catch((error) => {
+			if(error == 'Server error'){
+				this.errorMessage = "Could not connect to REST server. Please check your configuration details";
+			}
+			else if (error == '500 - Internal Server Error') {
+			  this.errorMessage = "Input error";
+			  setTimeout(this.loadAllItems(), 1000);
+			}
+			else{
+				this.errorMessage = error;
+			}
+		});
+
+	  }
 	
 	loadItems(name): Promise<any>  {
     
@@ -382,13 +417,24 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 		.toPromise()
 		.then((result) => {
 				this.errorMessage = null;
+				let count = 0;
 			  result.forEach(item => {
 				item.str = JSON.stringify(item);
-				itemsList.push(item);
+				//console.log("yes: "+item.name+" "+this.business);
+				//if(item.name==this.business){ //TO-DO FIX for different businesses
+				//	this.currentbusiness = [item];
+				//	console.log("hizzle");
+				//	console.log(this.currentbusiness);
+				//} else {
+					itemsList.push(item);
+					//currentbusiness.push(item);
+				//}
+				count++;
 			  });     
 		})
 		.then(() => {
 		  this.allbusinesses = itemsList;
+		  this.currentbusiness = itemsList;
 		}).catch((error) => {
 			if(error == 'Server error'){
 				this.errorMessage = "Could not connect to REST server. Please check your configuration details";
@@ -415,12 +461,12 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked  {
 			  result.forEach(item => {
 				contractsList.push(item);
 			  });     
-			  //console.log(result);
+			  console.log(result);
 		})
 		.then(() => {
 
 		  for (let contract of contractsList) {
-		  	//console.log(contract.sellingBusiness+" vs "+name);
+		  	console.log(contract.sellingBusiness+" vs "+name);
 			if(contract.sellingBusiness==name||contract.buyingBusiness==name){
 				if(contract.status=="CANCELLED"){
 

@@ -31,7 +31,7 @@ export class DataService<Type> {
         //return this.http.get(this.actionUrl + ns + '/' + id + this.resolveSuffix)
         //org.mat.User?filter=%7B%22userEmail%22%3A%20%22c%40c.c%22%7D
         console.log(this.actionUrl + ns + "?filter=%7B%22where%22%3A%20%7B%22"+what+"%22%3A%20%22" + encodeURIComponent(id) +"%22%7D%7D");
-        return this.http.get(this.actionUrl + ns + "?filter=%7B%22where%22%3A%20%7B%22"+what+"%22%3A%20%22" + encodeURIComponent(id) +"%22%7D%7D")
+        return this.http.get(this.actionUrl + ns + "?filter=%7B%22where%22%3A%20%7B%22"+what+"%22%3A%20%22" + encodeURIComponent(id).split('\'').join('\\\\\'') +"%22%7D%7D")
           .map(this.extractData)
           .catch(this.handleError);
     }
